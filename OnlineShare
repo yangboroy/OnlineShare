@@ -1,0 +1,18 @@
+File Share Write:
+sudo mount -t nfs 10.73.194.36:/vol/virtqe3rd/boyang/ /mnt/
+File Share Read:
+http://fileshare.englab.nay.redhat.com/pub/section1/virtqe3rd/boyang/
+
+
+How to upgrade ESXi6.7 to ESXi7.0
+1. esxcli software sources profile list -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip
+2. esxcli software profile update -p ESXi-7.0.0-15843807-standard -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip --dry-run
+3. esxcli software profile update -p ESXi-7.0.0-15843807-standard -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip ---no-sig-check
+
+
+How to install vCenter
+1. Download a VMware-VCSA-all-7.0.1-17004997 from vmware.com to a Windows / Linux machine.
+2. Check "E:\vcsa-ui-installer" folder to select related Windows / Linux installer.
+3. Click this application to install. 
+4. During installation, should fill a esxi host IP(10.73.225.230), Account(root / 123qweP) where vCenter installed.
+5. When set vCenter VM(vsphere vcenter appliance) user name, please set (root / Redhat@110).
