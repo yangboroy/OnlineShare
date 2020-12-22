@@ -34,3 +34,14 @@ How to upgrade kernel
   make install
   shutdown -r 0
 
+
+How to Setup Code Coverage Test in ESXi
+ 0. Confirm which files need to be added to CC Fiel List: 
+  a. arch/x86/kernel/cpu/vmware.c
+  b. drivers/net/vmxnet3
+  c. drivers/scsi/vmw_pvscsi.c
+  d. drivers/gpu/drm/vmwgfx
+  e. drivers/misc/vmw_balloon.c
+  f. drivers/infiniband/hw/vmw_pvrdma
+  g. drivers/net/ethernet/mellanox
+  h. drivers/net/ethernet/intel
