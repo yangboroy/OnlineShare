@@ -45,3 +45,18 @@ How to Setup Code Coverage Test in ESXi
   f. drivers/infiniband/hw/vmw_pvrdma
   g. drivers/net/ethernet/mellanox
   h. drivers/net/ethernet/intel
+
+
+ISA
+https://www.plantation-productions.com/Webster/www.artofasm.com/Windows/HTML/ISA.html
+
+
+How to update / upgrade ESXi host from https://my.vmware.com/group/vmware/patch#search
+1. Download related ESXi650-202011002.zip or VMware-ESXi-7.0U1d-17551050-depot.zip which should includes all cumulative patches.
+2. SCP it to esxi host datastore.
+3. Confirm profile name with "esxcli software sources profile list  --depot=/vmfs/volumes/56bfff0f-525df268-8993-d89d6726bbf0/ESXi650-202011002.zip"
+Name                             Vendor        Acceptance Level
+-------------------------------  ------------  ----------------
+ESXi-6.5.0-20201103001-standard  VMware, Inc.  PartnerSupported
+ESXi-6.5.0-20201103001-no-tools  VMware, Inc.  PartnerSupported
+4. Update it with "esxcli software profile update  --depot=/vmfs/volumes/56bfff0f-525df268-8993-d89d6726bbf0/ESXi650-202011002.zip -p ESXi-6.5.0-20201103001-standard --no-sig-check"
