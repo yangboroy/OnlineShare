@@ -60,3 +60,40 @@ Name                             Vendor        Acceptance Level
 ESXi-6.5.0-20201103001-standard  VMware, Inc.  PartnerSupported
 ESXi-6.5.0-20201103001-no-tools  VMware, Inc.  PartnerSupported
 4. Update it with "esxcli software profile update  --depot=/vmfs/volumes/56bfff0f-525df268-8993-d89d6726bbf0/ESXi650-202011002.zip -p ESXi-6.5.0-20201103001-standard --no-sig-check"
+
+
+How to extend VM's a disk.
+1. Shutdown a VM, add a new disk(64G) to the VM.
+2. Boot the VM.
+3. "sudo fdisk -l". PS: /dev/sdb is the new disk.
+    - Disk /dev/sda: 16 GiB, 17179869184 bytes, 33554432 sectors
+    - Disk /dev/sdb: 64 GiB, 68719476736 bytes, 134217728 sectors
+    - Disk /dev/mapper/rhel_vm--197--198-root: 13.4 GiB, 83097550848 bytes, 162299904 sectors
+    - Disk /dev/mapper/rhel_vm--197--198-swap: 1.6 GiB, 1719664640 bytes, 3358720 sectors
+4. "sudo fdisk /dev/sdb".
+    - Command (m for help): n
+    - Select (default p): p
+    - Command (m for help): t
+    - Partition number (1-3, default 3): L
+    - Hex code (type L to list all codes): 8e     
+    - Command (m for help): w
+5. "partprobe".
+6. "sudo fdisk -l".
+7. "sudo pvcreate /dev/sdb1".
+8. "sudo vgs".
+    - output:  rhel_vm--197--198   1   3   0 wz--n- <59.00g    0 
+9. "sudo vgextend rhel_vm--197--198 /dev/sdb1".
+10. "sudo lvextend /dev/mapper/rhel_vm--197--198-root  /dev/sdb1". PS: See step 3, extend 13.4 + 64.
+11. "sudo xfs_growfs /dev/mapper/rhel_vm--197--198-root".
+12. "du -h".
+
+
+
+
+
+
+
+
+
+
+
