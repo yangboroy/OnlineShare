@@ -1,16 +1,15 @@
-File Share Write:
-sudo mount -t nfs 10.73.194.36:/vol/virtqe3rd/boyang/ /mnt/
-File Share Read:
-http://fileshare.englab.nay.redhat.com/pub/section1/virtqe3rd/boyang/
+File Share - S1-3RD NFS.
+    - Write: sudo mount -t nfs 10.73.194.36:/vol/virtqe3rd/boyang/ /mnt/
+    - Read: http://fileshare.englab.nay.redhat.com/pub/section1/virtqe3rd/boyang/
 
 
-How to upgrade ESXi6.7 to ESXi7.0
+How to upgrade ESXi6.7 to ESXi7.0.
 1. esxcli software sources profile list -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip
 2. esxcli software profile update -p ESXi-7.0.0-15843807-standard -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip --dry-run
 3. esxcli software profile update -p ESXi-7.0.0-15843807-standard -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip ---no-sig-check
 
 
-How to install vCenter
+How to install vCenter.
 1. Download a VMware-VCSA-all-7.0.1-17004997 from vmware.com to a Windows / Linux machine.
 2. Check "E:\vcsa-ui-installer" folder to select related Windows / Linux installer.
 3. Click this application to install. 
@@ -18,7 +17,7 @@ How to install vCenter
 5. When set vCenter VM(vsphere vcenter appliance) user name, please set (root / Redhat@110).
 
 
-How to upgrade kernel
+How to upgrade a linux kernel.
 1. Prepre the compile ENV
   yum install -y m4 make gcc ncurses-devel flex bison openssl-devel elfutils-libelf-devel perl
 2. Download target kernel from https://www.kernel.org/ to /usr/src/kernels/ 
@@ -51,14 +50,14 @@ ISA
 https://www.plantation-productions.com/Webster/www.artofasm.com/Windows/HTML/ISA.html
 
 
-How to update / upgrade ESXi host from https://my.vmware.com/group/vmware/patch#search
+How to update / upgrade ESXi host from https://my.vmware.com/group/vmware/patch#search.
 1. Download related ESXi650-202011002.zip or VMware-ESXi-7.0U1d-17551050-depot.zip which should includes all cumulative patches.
 2. SCP it to esxi host datastore.
 3. Confirm profile name with "esxcli software sources profile list  --depot=/vmfs/volumes/56bfff0f-525df268-8993-d89d6726bbf0/ESXi650-202011002.zip"
-Name                             Vendor        Acceptance Level
--------------------------------  ------------  ----------------
-ESXi-6.5.0-20201103001-standard  VMware, Inc.  PartnerSupported
-ESXi-6.5.0-20201103001-no-tools  VMware, Inc.  PartnerSupported
+    Name                             Vendor        Acceptance Level
+    -------------------------------  ------------  ----------------
+    ESXi-6.5.0-20201103001-standard  VMware, Inc.  PartnerSupported
+    ESXi-6.5.0-20201103001-no-tools  VMware, Inc.  PartnerSupported
 4. Update it with "esxcli software profile update  --depot=/vmfs/volumes/56bfff0f-525df268-8993-d89d6726bbf0/ESXi650-202011002.zip -p ESXi-6.5.0-20201103001-standard --no-sig-check"
 
 
@@ -66,31 +65,38 @@ How to extend VM's a disk.
 1. Shutdown a VM, add a new disk(64G) to the VM.
 2. Boot the VM.
 3. "sudo fdisk -l". PS: /dev/sdb is the new disk.
-    - Disk /dev/sda: 16 GiB, 17179869184 bytes, 33554432 sectors
-    - Disk /dev/sdb: 64 GiB, 68719476736 bytes, 134217728 sectors
-    - Disk /dev/mapper/rhel_vm--197--198-root: 13.4 GiB, 83097550848 bytes, 162299904 sectors
-    - Disk /dev/mapper/rhel_vm--197--198-swap: 1.6 GiB, 1719664640 bytes, 3358720 sectors
+       - Disk /dev/sda: 16 GiB, 17179869184 bytes, 33554432 sectors
+       - Disk /dev/sdb: 64 GiB, 68719476736 bytes, 134217728 sectors
+       - Disk /dev/mapper/rhel_vm--197--198-root: 13.4 GiB, 83097550848 bytes, 162299904 sectors
+       - Disk /dev/mapper/rhel_vm--197--198-swap: 1.6 GiB, 1719664640 bytes, 3358720 sectors
 4. "sudo fdisk /dev/sdb".
-    - Command (m for help): n
-    - Select (default p): p
-    - Command (m for help): t
-    - Partition number (1-3, default 3): L
-    - Hex code (type L to list all codes): 8e     
-    - Command (m for help): w
+       - Command (m for help): n
+       - Select (default p): p
+       - Command (m for help): t
+       - Partition number (1-3, default 3): L
+       - Hex code (type L to list all codes): 8e     
+       - Command (m for help): w
 5. "partprobe".
 6. "sudo fdisk -l".
 7. "sudo pvcreate /dev/sdb1".
 8. "sudo vgs".
-    - output:  rhel_vm--197--198   1   3   0 wz--n- <59.00g    0 
+       - output:  rhel_vm--197--198   1   3   0 wz--n- <59.00g    0 
 9. "sudo vgextend rhel_vm--197--198 /dev/sdb1".
 10. "sudo lvextend /dev/mapper/rhel_vm--197--198-root  /dev/sdb1". PS: See step 3, extend 13.4 + 64.
 11. "sudo xfs_growfs /dev/mapper/rhel_vm--197--198-root".
 12. "du -h".
 
 
-
-
-
+Netperf - FYI.
+A. 批量(bulk)网络流量的性能
+    - 批量数据传输典型的例子有ftp等网络应用（即一次传输整个文件）。根据使用传输协议的不同，分为TCP批量传输和UDP批量传输.
+        - Netperf缺省情况下进行TCP批量传输，即-t TCP_STREAM。netperf 向 netserver发送批量的TCP数据分组，以确定数据传输过程中的吞吐量.
+        - UDP_STREAM用来测试进行UDP批量传输时的网络性能。注意，此时测试分组的大小不得大于socket的发送与接收缓冲大小，否则会报出错.
+B. 请求/应答(request/response)网络流量的性能
+    - 另一类网络流量类型是在client/server中的request/response模式。在每次交易（transaction）中，client向server发出小的查询分组，server接收到请求，处理后返回大的结果数据.
+        - TCP_RR测试对象是多次TCP request和response的交易过程，它们发生在同一个TCP连接中，常出现在数据库应用中。数据库的client与server建立一个TCP连接以后，在这个连接中传送数据库的多次交易过程.
+        - TCP_CRR为每次交易建立一个新的TCP连接。最典型的就是HTTP，每次HTTP交易是在一条单独的TCP连接中进行的。由于不停地建立新的TCP连接，且在交易结束后拆除TCP连接，交易率受到很大的影响.
+        - UDP_RR方式使用UDP分组进行request/response的交易过程。由于没有TCP连接所带来的负担，所以我们推测交易率一定会有相应的提升.
 
 
 
