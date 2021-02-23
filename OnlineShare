@@ -99,7 +99,8 @@ B. 请求/应答(request/response)网络流量的性能
         - UDP_RR方式使用UDP分组进行request/response的交易过程。由于没有TCP连接所带来的负担，所以我们推测交易率一定会有相应的提升.
 
 
-
-
+How to access Xen Jenkins master.
+1. Add your pub key to Xen Jenkins master.
+2. ssh jenkins@xen-jenkins.rhev-ci-vms.eng.rdu2.redhat.com.
 
 
