@@ -80,8 +80,8 @@ How to extend VM's a disk.
 6. "sudo fdisk -l".
 7. "sudo pvcreate /dev/sdb1".
 8. "sudo vgs".
-       - output:  rhel_vm--197--198   1   3   0 wz--n- <59.00g    0 
-9. "sudo vgextend rhel_vm--197--198 /dev/sdb1".
+       - output:  rhel_vm-197-198   1   3   0 wz--n- <59.00g    0 
+9. "sudo vgextend rhel_vm-197-198 /dev/sdb1".
 10. "sudo lvextend /dev/mapper/rhel_vm--197--198-root  /dev/sdb1". PS: See step 3, extend 13.4 + 64.
 11. "sudo xfs_growfs /dev/mapper/rhel_vm--197--198-root".
 12. "du -h".
