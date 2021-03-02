@@ -1,15 +1,23 @@
 File Share - S1-3RD NFS.
-    - Write: sudo mount -t nfs 10.73.194.36:/vol/virtqe3rd/boyang/ /mnt/
+    - Mount: sudo mount -t nfs 10.73.194.36:/vol/virtqe3rd/boyang/ /mnt/
+    - Write: sudo cp local_file_or_folder /mnt/
+    - Read: sudo /mnt/ cp local_file_or_folder 
     - Read: http://fileshare.englab.nay.redhat.com/pub/section1/virtqe3rd/boyang/
 
+NFS(perf-insight).
+    - Mount: sudo mount -t nfs perf-insight.lab.eng.pek2.redhat.com:/nfs /mnt
+    - Write: sudo cp local_file_or_folder /mnt/
+    - Read1: sudo /mnt/ cp local_file_or_folder 
+    - Read2: http://perf-insight.lab.eng.pek2.redhat.com/perf-insight/
 
-How to upgrade ESXi6.7 to ESXi7.0.
+
+How to upgrade a ESXi6.7 to ESXi7.0.
 1. esxcli software sources profile list -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip
 2. esxcli software profile update -p ESXi-7.0.0-15843807-standard -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip --dry-run
 3. esxcli software profile update -p ESXi-7.0.0-15843807-standard -d /vmfs/volumes/5c9bf508-925a81c5-8aa9-40623106c271/VMware-ESXi-7.0.0-15843807-depot.zip ---no-sig-check
 
 
-How to install vCenter.
+How to install a vCenter.
 1. Download a VMware-VCSA-all-7.0.1-17004997 from vmware.com to a Windows / Linux machine.
 2. Check "E:\vcsa-ui-installer" folder to select related Windows / Linux installer.
 3. Click this application to install. 
@@ -18,7 +26,7 @@ How to install vCenter.
 
 
 How to upgrade a linux kernel.
-1. Prepre the compile ENV
+1. Prepre the compile ENV.
   yum install -y m4 make gcc ncurses-devel flex bison openssl-devel elfutils-libelf-devel perl
 2. Download target kernel from https://www.kernel.org/ to /usr/src/kernels/ 
   cd /usr/src/kernels/
@@ -34,7 +42,7 @@ How to upgrade a linux kernel.
   shutdown -r 0
 
 
-How to Setup Code Coverage Test in ESXi
+How to Setup Code Coverage Test in ESXi.
  0. Confirm which files need to be added to CC Fiel List: 
   a. arch/x86/kernel/cpu/vmware.c
   b. drivers/net/vmxnet3
@@ -61,7 +69,7 @@ How to update / upgrade ESXi host from https://my.vmware.com/group/vmware/patch#
 4. Update it with "esxcli software profile update  --depot=/vmfs/volumes/56bfff0f-525df268-8993-d89d6726bbf0/ESXi650-202011002.zip -p ESXi-6.5.0-20201103001-standard --no-sig-check"
 
 
-How to extend VM's a disk.
+How to extend VM's a disk. (After extendtion and rebooting. The VM can't be booted up. :().
 1. Shutdown a VM, add a new disk(64G) to the VM.
 2. Boot the VM.
 3. "sudo fdisk -l". PS: /dev/sdb is the new disk.
@@ -99,8 +107,40 @@ B. 请求/应答(request/response)网络流量的性能
         - UDP_RR方式使用UDP分组进行request/response的交易过程。由于没有TCP连接所带来的负担，所以我们推测交易率一定会有相应的提升.
 
 
-How to access Xen Jenkins master.
-1. Add your pub key to Xen Jenkins master.
+How to access Xen Jenkins master. (Will be dropped in 31 / Mar).
+1. Add your pub key to Xen Jenkins master. (Ask wshi).
 2. ssh jenkins@xen-jenkins.rhev-ci-vms.eng.rdu2.redhat.com.
 
 
+How to access ESXi Jenkins(ci-jenkins-csb-esxi.apps.ocp4.prod.psi.redhat.com).
+PS. ESXi Jenkins based on OCP 4.6.
+1. Install command oc and in your local terminal, type into "oc login --server=https://api.ocp4.prod.psi.redhat.com:6443 -n jenkins-csb-esxi".
+    username: boyang
+    password: B*************
+    
+    Output: 
+    -------------
+    Using project "jenkins-csb-esxi".
+    -------------
+2. In your local terminal type into "oc get pods"
+
+    Output:
+    -------------
+    [boyang@localhost Xen-Jenkins]$ oc get pods
+    NAME                        READY     STATUS      RESTARTS   AGE
+    ci-jenkins-1-build          0/1       Completed   0          4h12m
+    ci-jenkins-1-deploy         0/1       Completed   0          3h54m
+    ci-jenkins-1-jsgmz          1/1       Running     0          3h54m
+    ci-jenkins-docker-2-build   0/1       Completed   0          7h42m
+    ci-jenkins-slave-1-deploy   0/1       Completed   0          4h12m
+    ci-jenkins-slave-1-l6wnp    1/1       Running     0          4h12m
+    ci-jenkins-slave-2-build    0/1       Completed   0          7h42m
+    -------------
+3. Login target Jenkins pod(ci-jenkins-1-jsgmz 1/1 Running) shell. PS. I think slave pod(ci-jenkins-slave-1-l6wnp 1/1 Running) shell.
+    oc rsh ci-jenkins-1-jsgmz
+    
+    Output:
+    -------------
+    sh-4.2$ cd /var/lib/jenkins
+    -------------
+    PS. Path "/var/lib/jenkins" is the Jenkins home.
