@@ -144,3 +144,65 @@ PS. ESXi Jenkins based on OCP 4.6.
     sh-4.2$ cd /var/lib/jenkins
     -------------
     PS. Path "/var/lib/jenkins" is the Jenkins home.
+    
+    
+How to run pbench-uperf.
+1. Setup ENV.
+2. Runner.
+    2.1 
+    testrun_id=$(./make_testrunid.py --type uperf --platform ESXi --compose RHEL-8.4.0-20210226.n.0 --customized-labels x86_bios_net_default)
+    [ -z $testrun_id ] && exit 1
+    2.2
+    log_path="/mnt/perf-insight/.exchange/uperf_results/$testrun_id"
+    mkdir -p $log_path || exit 1
+    2.3
+    VM-1
+    {
+       "guest-cpu": "8",
+       "guest-flavor": "esx.g2.4xlarge",
+       "guest-memory": "16GB",
+       "hardware-net-driver": "vmxnet3",
+       "hardware-net-duplex": "Full",
+       "hardware-net-speed": "10000Mb/s",
+       "hypervisor-cpu": "32",
+       "hypervisor-cpu_model": "Intel(R) Xeon(R) CPU E5-2665 0 @ 2.40GHz",
+       "hypervisor-version": "VMware ESXi, 6.5.0, 17167537",
+       "os-branch": "RHEL-8.4",
+       "os-compose": "RHEL-8.4.0-20210226.n.0",
+       "os-kernel": "4.18.0-291.el8.x86_64",
+       "testrun-comments": "",
+       "testrun-date": "2021-03-02",
+       "testrun-id": "uperf_ESXi_RHEL-8.4.0-20210206.n.0_x86_bios_net_default_D210302T151759",
+       "testrun-platform": "ESXi",
+       "testrun-type": "uperf",
+       "tool-uperf_version": "uperf-1.0.7-1.el8.x86_64"
+    }
+    VM-2
+    {
+       "guest-cpu": "8",
+       "guest-flavor": "esx.g2.4xlarge",
+       "guest-memory": "16GB",
+       "hardware-net-driver": "vmxnet3",
+       "hardware-net-duplex": "Full",
+       "hardware-net-speed": "10000Mb/s",
+       "hypervisor-cpu": "32",
+       "hypervisor-cpu_model": "Intel(R) Xeon(R) CPU E5-2665 0 @ 2.40GHz",
+       "hypervisor-version": "VMware ESXi, 6.5.0, 17167537",
+       "os-branch": "RHEL-8.3",
+       "os-compose": "RHEL-8.3.0-2020111009.2",
+       "os-kernel": "4.18.0-240.el8.x86_64",
+       "testrun-comments": "",
+       "testrun-date": "2021-03-02",
+       "testrun-id": "uperf_ESXi_RHEL-8.3.0-20201009.2_x86_bios_net_default_D210302T151911",
+       "testrun-platform": "ESXi",
+       "testrun-type": "uperf",
+       "tool-uperf_version": "uperf-1.0.7-1.el8.x86_64"
+    }
+    2.4
+    VM-1
+    ./write_metadata.py --file $log_path/metadata.json --keypair testrun_id=$testrun_id --keypair testrun_type=uperf --keypair testrun_platform=ESXi --keypair testrun_date=2021-03-02 --keypair testrun_comments="" --keypair testrun_net-driver=VMXNET3 --keypair testrun_net-speed=10000Mb/s --keypair testrun_net-duplex=Full --keypair testrun_os-branch=RHEL-8.4 --keypair testrun_os-compose=RHEL-8.4.0-20210226.n.0 --keypair testrun_os-kernel=4.18.0-291.el8.x86_64 --keypair testrun_tool-uperf_version=uperf-1.0.7-1.el8.x86_64 --keypair testrun_guest-cpu=8 --keypair testrun_guest-flavor=esx.g2.4xlarge --keypair testrun_guest-memory=16GB --keypair testrun_hypervisor-cpu=32 --keypair testrun_hypervisor-cpu_model="Intel(R) Xeon(R) CPU E5-2665 0 @ 2.40GHz" --keypair testrun_hypervisor-version="VMware ESXi, 6.5.0, 17167537"
+    VM-2
+    ./write_metadata.py --file $log_path/metadata.json --keypair testrun_id=$testrun_id --keypair testrun_type=uperf --keypair testrun_platform=ESXi --keypair testrun_date=2021-03-02 --keypair testrun_comments="" --keypair testrun_net-driver=VMXNET3 --keypair testrun_net-speed=10000Mb/s --keypair testrun_net-duplex=Full --keypair testrun_os-branch=RHEL-8.3 --keypair testrun_os-compose=RHEL-8.3.0-20201009.2 --keypair testrun_os-kernel=4.18.0-240.el8.x86_64 --keypair testrun_tool-uperf_version=uperf-1.0.7-1.el8.x86_64 --keypair testrun_guest-cpu=8 --keypair testrun_guest-flavor=esx.g2.4xlarge --keypair testrun_guest-memory=16GB --keypair testrun_hypervisor-cpu=32 --keypair testrun_hypervisor-cpu_model="Intel(R) Xeon(R) CPU E5-2665 0 @ 2.40GHz" --keypair testrun_hypervisor-version="VMware ESXi, 6.5.0, 17167537"
+    2.5
+    pbench-uperf-tiny --config=${testrun_id#*_} -S VM-1 -C VM-2
+
