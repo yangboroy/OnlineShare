@@ -69,7 +69,7 @@ How to update / upgrade ESXi host from https://my.vmware.com/group/vmware/patch#
 4. Update it with "esxcli software profile update  --depot=/vmfs/volumes/56bfff0f-525df268-8993-d89d6726bbf0/ESXi650-202011002.zip -p ESXi-6.5.0-20201103001-standard --no-sig-check"
 
 
-How to extend VM's a disk. (After extendtion and rebooting. The VM can't be booted up. :().
+How to extend VM's a disk. (VM FW should be BIOS. If VM FW is EFI, after extendtion, VM can't be booted up).
 1. Shutdown a VM, add a new disk(64G) to the VM.
 2. Boot the VM.
 3. "sudo fdisk -l". PS: /dev/sdb is the new disk.
@@ -147,62 +147,66 @@ PS. ESXi Jenkins based on OCP 4.6.
     
     
 How to run pbench-uperf.
-1. Setup ENV.
-2. Runner.
-    2.1 
-    testrun_id=$(./make_testrunid.py --type uperf --platform ESXi --compose RHEL-8.4.0-20210226.n.0 --customized-labels x86_bios_net_default)
-    [ -z $testrun_id ] && exit 1
-    2.2
-    log_path="/mnt/perf-insight/.exchange/uperf_results/$testrun_id"
-    mkdir -p $log_path || exit 1
-    2.3
-    VM-1
-    {
-       "guest-cpu": "8",
-       "guest-flavor": "esx.g2.4xlarge",
-       "guest-memory": "16GB",
-       "hardware-net-driver": "vmxnet3",
-       "hardware-net-duplex": "Full",
-       "hardware-net-speed": "10000Mb/s",
-       "hypervisor-cpu": "32",
-       "hypervisor-cpu_model": "Intel(R) Xeon(R) CPU E5-2665 0 @ 2.40GHz",
-       "hypervisor-version": "VMware ESXi, 6.5.0, 17167537",
-       "os-branch": "RHEL-8.4",
-       "os-compose": "RHEL-8.4.0-20210226.n.0",
-       "os-kernel": "4.18.0-291.el8.x86_64",
-       "testrun-comments": "",
-       "testrun-date": "2021-03-02",
-       "testrun-id": "uperf_ESXi_RHEL-8.4.0-20210206.n.0_x86_bios_net_default_D210302T151759",
-       "testrun-platform": "ESXi",
-       "testrun-type": "uperf",
-       "tool-uperf_version": "uperf-1.0.7-1.el8.x86_64"
-    }
-    VM-2
-    {
-       "guest-cpu": "8",
-       "guest-flavor": "esx.g2.4xlarge",
-       "guest-memory": "16GB",
-       "hardware-net-driver": "vmxnet3",
-       "hardware-net-duplex": "Full",
-       "hardware-net-speed": "10000Mb/s",
-       "hypervisor-cpu": "32",
-       "hypervisor-cpu_model": "Intel(R) Xeon(R) CPU E5-2665 0 @ 2.40GHz",
-       "hypervisor-version": "VMware ESXi, 6.5.0, 17167537",
-       "os-branch": "RHEL-8.3",
-       "os-compose": "RHEL-8.3.0-2020111009.2",
-       "os-kernel": "4.18.0-240.el8.x86_64",
-       "testrun-comments": "",
-       "testrun-date": "2021-03-02",
-       "testrun-id": "uperf_ESXi_RHEL-8.3.0-20201009.2_x86_bios_net_default_D210302T151911",
-       "testrun-platform": "ESXi",
-       "testrun-type": "uperf",
-       "tool-uperf_version": "uperf-1.0.7-1.el8.x86_64"
-    }
-    2.4
-    VM-1
-    ./write_metadata.py --file $log_path/metadata.json --keypair testrun_id=$testrun_id --keypair testrun_type=uperf --keypair testrun_platform=ESXi --keypair testrun_date=2021-03-02 --keypair testrun_comments="" --keypair testrun_net-driver=VMXNET3 --keypair testrun_net-speed=10000Mb/s --keypair testrun_net-duplex=Full --keypair testrun_os-branch=RHEL-8.4 --keypair testrun_os-compose=RHEL-8.4.0-20210226.n.0 --keypair testrun_os-kernel=4.18.0-291.el8.x86_64 --keypair testrun_tool-uperf_version=uperf-1.0.7-1.el8.x86_64 --keypair testrun_guest-cpu=8 --keypair testrun_guest-flavor=esx.g2.4xlarge --keypair testrun_guest-memory=16GB --keypair testrun_hypervisor-cpu=32 --keypair testrun_hypervisor-cpu_model="Intel(R) Xeon(R) CPU E5-2665 0 @ 2.40GHz" --keypair testrun_hypervisor-version="VMware ESXi, 6.5.0, 17167537"
-    VM-2
-    ./write_metadata.py --file $log_path/metadata.json --keypair testrun_id=$testrun_id --keypair testrun_type=uperf --keypair testrun_platform=ESXi --keypair testrun_date=2021-03-02 --keypair testrun_comments="" --keypair testrun_net-driver=VMXNET3 --keypair testrun_net-speed=10000Mb/s --keypair testrun_net-duplex=Full --keypair testrun_os-branch=RHEL-8.3 --keypair testrun_os-compose=RHEL-8.3.0-20201009.2 --keypair testrun_os-kernel=4.18.0-240.el8.x86_64 --keypair testrun_tool-uperf_version=uperf-1.0.7-1.el8.x86_64 --keypair testrun_guest-cpu=8 --keypair testrun_guest-flavor=esx.g2.4xlarge --keypair testrun_guest-memory=16GB --keypair testrun_hypervisor-cpu=32 --keypair testrun_hypervisor-cpu_model="Intel(R) Xeon(R) CPU E5-2665 0 @ 2.40GHz" --keypair testrun_hypervisor-version="VMware ESXi, 6.5.0, 17167537"
-    2.5
-    pbench-uperf-tiny --config=${testrun_id#*_} -S VM-1 -C VM-2
+1. Setup ENV in VM-1 and VM-2.
+    1.1 VM-1:
+        cd /root/
+        git clone https://github.com/virt-s1/perf-agent.git 
+        cd /root/perf-agent/pbench_setup
+        ssh-keygen 
+        ssh-copy-id VM-1-IP
+        ssh-copy-id VM-2 IP
+        vim /root/perf-agent/pbench_setup/inventory # Add VM-1-IP and VM-2-IP to inventory.
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+        yum -y --enablerepo=epel install ansible
+        sudo mount -t nfs perf-insight.lab.eng.pek2.redhat.com:/nfs /mnt
+    1.2 VM-2:
+        yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+        ssh-keygen 
+        ssh-copy-id VM-1-IP
+        ssh-copy-id VM-2 IP
+    1.3 VM-1
+        . /root/perf-agent/pbench_setup/setup.sh # Install packages and pbench into VM-1 and VM-2.
+        . /etc/profile.d/pbench-agent.sh
+        cd /opt/pbench-agent/bench-scripts/
+        cp pbench-uperf pbench-uperf-lite # (tcp,udp)*(stream,rr)*(1,1024)*(1,8)*(2samples,5maxstddevpct,2failures,20s)
+        cp pbench-uperf pbench-uperf-default # (tcp,udp)*(stream,maerts,rr)*(1,64,1024)*(1,8,64)*(3samples,5maxstddevpct,3failures,60s)
+        cp pbench-uperf pbench-uperf-full # (tcp,udp)*(stream,maerts,bidirec,rr)*(1,64,1024,16384)*(1,8,64)*(5samples,5maxstddevpct,6failures,60s)
+    1.4 VM-2:        
+        ls /opt/pbench-agent # To check pbench-agent installation.
+        uperf -V # To check package installation.        
+2. Run pbench-uperf and handle results.
+    2.1 VM-1:
+        testrun_id=$(./make_testrunid.py --type uperf --platform ESXi --compose RHEL-8.3.0-20201009.2 --customized-labels x86_bios_default)
+        [ -z $testrun_id ] && exit 1   
+    2.2 VM-1
+        log_path="/mnt/perf-insight/.exchange/uperf_results/$testrun_id"
+        mkdir -p $log_path || exit 1  
+    2.3 Prepare below info in a text for 2.4 for VM-1:
+        {
+           "testrun_id": 
+           "guest-cpu": "8",
+           "guest-flavor": "esx.g2.2xlarge",
+           "guest-memory": "32GB",
+           "hardware-net-driver": "vmxnet3",
+           "hardware-net-duplex": "Full",
+           "hardware-net-speed": "10000Mb/s",
+           "hypervisor-cpu": "32",
+           "hypervisor-cpu_model": "AMD EPYC 7302 16-Core Processor",
+           "hypervisor-version": "VMware ESXi, 7.0.2, 17479126",
+           "os-branch": "RHEL-8.3",
+           "os-compose": "RHEL-8.3.0-20201009.2",
+           "os-kernel": "4.18.0-240.el8.x86_64",
+           "testrun-comments": "",
+           "testrun-date": "2021-03-04",
+           "testrun-id": "**********************************************",
+           "testrun-platform": "ESXi",
+           "testrun-type": "uperf",
+           "tool-uperf_version": "uperf-1.0.7-1.el8.x86_64"
+        }
+    2.4 VM-1: 
+        ./write_metadata.py --file $log_path/metadata.json --keypair testrun-id=$testrun_id --keypair testrun-type=uperf --keypair testrun-platform=ESXi --keypair testrun-date=2021-03-04 --keypair testrun-comments="" --keypair hardware-net-driver=VMXNET3 --keypair hardware-net-speed=10000Mb/s --keypair testrun_net-duplex=Full --keypair testrun_os-branch=RHEL-8.3 --keypair testrun_os-compose=RHEL-8.3.0-20201009.2 --keypair testrun_os-kernel=4.18.0-240.el8.x86_64 --keypair tool-uperf_version=uperf-1.0.7-1.el8.x86_64 --keypair guest-cpu=8 --keypair guest-flavor=esx.g2.2xlarge --keypair guest-memory=32GB --keypair hypervisor-cpu=32 --keypair hypervisor-cpu_model="AMD EPYC 7302 16-Core Processor" --keypair hypervisor-version="VMware ESXi, 7.0.2, 17479126"    2.5 VM-1:
+        pbench-uperf-tiny --config=${testrun_id#*_} -C VM-1  -S VM-2
+    2.6 VM-1:
+        mv /var/lib/pbench-agent/${testrun_id}* $log_path
+
 
